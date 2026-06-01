@@ -39,7 +39,7 @@ flowchart LR
 - **Design system:** AXA France Canopée `prospect` tokens/components, with
   custom chat surfaces for fidelity to the public assistant behavior.
 - **Observability:** LangSmith traces and lightweight FinOps/RSE metadata.
-- **Interview support:** the current presentation deck is served by the web app at [`/AXA-Prevention-Coach-support.pptx`](apps/web/public/AXA-Prevention-Coach-support.pptx).
+- **Interview support:** the current presentation deck is tracked as documentation at [`docs/AXA-Prevention-Coach-support.pptx`](docs/AXA-Prevention-Coach-support.pptx).
 
 ## Repository layout
 

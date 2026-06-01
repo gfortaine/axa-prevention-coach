@@ -38,5 +38,5 @@ __pycache__/
 
 # Large/private presentation exports
 *.pptx
-!apps/web/public/AXA-Prevention-Coach-support.pptx
+!docs/AXA-Prevention-Coach-support.pptx
 *.key
