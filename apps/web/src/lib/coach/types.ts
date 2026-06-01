@@ -5,10 +5,9 @@ export type RetrieverKind =
   | "langgraph-agent-server"
   | "vertex-ai-search"
   | "pinecone-serverless"
-  | "elastic-cloud"
-  | "local-fallback";
+  | "elastic-cloud";
 
-export type GenerationMode = "openai" | "deterministic" | "langgraph-cloud";
+export type GenerationMode = "openai" | "langgraph-cloud" | "retrieval-unavailable";
 
 export interface PreventionDocument {
   id: string;
@@ -70,7 +69,7 @@ export interface AgentTraceStep {
 
 export interface ArchitectureLayer {
   name: string;
-  status: "active" | "ready" | "fallback";
+  status: "active" | "ready";
   detail: string;
 }
 

@@ -16,21 +16,26 @@ type RemoteGraphResult = Partial<ChatResponse> & {
   __error__?: unknown;
 };
 
-export interface RemoteGraphOutcome {
-  response: ChatResponse | null;
-  warning?: string;
+export class LangGraphUnavailableError extends Error {
+  readonly statusCode: number;
+
+  constructor(message: string, statusCode = 503) {
+    super(message);
+    this.name = "LangGraphUnavailableError";
+    this.statusCode = statusCode;
+  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
-function stringValue(value: unknown, fallback: string) {
-  return typeof value === "string" && value.trim() ? value : fallback;
+function stringValue(value: unknown, defaultValue: string) {
+  return typeof value === "string" && value.trim() ? value : defaultValue;
 }
 
-function numberValue(value: unknown, fallback: number) {
-  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+function numberValue(value: unknown, defaultValue: number) {
+  return typeof value === "number" && Number.isFinite(value) ? value : defaultValue;
 }
 
 function normalizeTelemetry(value: unknown): ResponseTelemetry {
@@ -69,9 +74,13 @@ function normalizeRisk(value: unknown): RiskAssessment {
 
 function normalizeRetrieval(value: unknown): ChatResponse["retrieval"] {
   const record = isRecord(value) ? value : {};
-  const kind = ["langsmith-agent-store", "langgraph-agent-server", "vertex-ai-search", "pinecone-serverless", "elastic-cloud", "local-fallback"].includes(
-    String(record.kind),
-  )
+  const kind = [
+    "langsmith-agent-store",
+    "langgraph-agent-server",
+    "vertex-ai-search",
+    "pinecone-serverless",
+    "elastic-cloud",
+  ].includes(String(record.kind))
     ? (record.kind as RetrieverKind)
     : "langgraph-agent-server";
 
@@ -129,7 +138,7 @@ function normalizeArchitecture(value: unknown): ArchitectureLayer[] {
   if (!Array.isArray(value)) return [];
   return value.filter(isRecord).map((layer) => ({
     name: stringValue(layer.name, "LangGraph"),
-    status: layer.status === "active" || layer.status === "fallback" ? layer.status : "ready",
+    status: layer.status === "active" ? "active" : "ready",
     detail: stringValue(layer.detail, "Couche architecture distante."),
   }));
 }
@@ -144,13 +153,12 @@ function normalizeRemoteResponse(result: RemoteGraphResult): ChatResponse {
     id: stringValue(result.id, crypto.randomUUID()),
     answer: stringValue(result.answer, ""),
     generationMode:
-      result.generationMode === "langgraph-cloud" || result.generationMode === "openai" || result.generationMode === "deterministic"
+      result.generationMode === "langgraph-cloud" ||
+      result.generationMode === "openai" ||
+      result.generationMode === "retrieval-unavailable"
         ? (result.generationMode as GenerationMode)
         : "langgraph-cloud",
-    retrieval: {
-      ...retrieval,
-      isCloud: retrieval.isCloud || retrieval.kind === "langsmith-agent-store" || retrieval.kind === "langgraph-agent-server",
-    },
+    retrieval,
     risk: normalizeRisk(result.risk),
     sources: normalizeDocuments(result.sources),
     citations: normalizeCitations(result.citations),
@@ -163,32 +171,38 @@ function normalizeRemoteResponse(result: RemoteGraphResult): ChatResponse {
   };
 }
 
-export async function runRemotePreventionGraph(request: ChatRequest): Promise<RemoteGraphOutcome> {
+export async function runRemotePreventionGraph(request: ChatRequest): Promise<ChatResponse> {
   const baseUrl = process.env.LANGGRAPH_API_URL?.replace(/\/$/, "");
   const assistantId = process.env.LANGGRAPH_ASSISTANT_ID || "axa_prevention_coach";
   if (!baseUrl) {
-    return { response: null };
+    throw new LangGraphUnavailableError("LANGGRAPH_API_URL is required to call LangGraph Cloud.");
   }
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
+  const authToken = process.env.LANGGRAPH_AUTH_TOKEN;
   const apiKey = process.env.LANGGRAPH_API_KEY || process.env.LANGSMITH_API_KEY || process.env.LANGCHAIN_API_KEY;
-  if (apiKey) {
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
+  } else if (apiKey) {
     headers["X-Api-Key"] = apiKey;
+  } else {
+    throw new LangGraphUnavailableError("LANGGRAPH_AUTH_TOKEN or LANGGRAPH_API_KEY is required to call LangGraph Cloud.");
   }
   const tenantId = process.env.LANGSMITH_TENANT_ID || process.env.LANGGRAPH_TENANT_ID;
   if (tenantId) {
     headers["X-Tenant-Id"] = tenantId;
   }
 
-  try {
-    const graphInput = {
-      ...request,
-      chat_history: request.chatHistory,
-    };
+  const graphInput = {
+    ...request,
+    chat_history: request.chatHistory,
+  };
 
-    const response = await fetch(`${baseUrl}/runs/wait`, {
+  let response: Response;
+  try {
+    response = await fetch(`${baseUrl}/runs/wait`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -201,16 +215,16 @@ export async function runRemotePreventionGraph(request: ChatRequest): Promise<Re
       }),
       cache: "no-store",
     });
-
-    if (!response.ok) {
-      const body = await response.text();
-      return { response: null, warning: `LangGraph distant indisponible (${response.status}): ${body.slice(0, 180)}` };
-    }
-
-    const payload = (await response.json()) as RemoteGraphResult;
-    return { response: normalizeRemoteResponse(payload) };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Erreur LangGraph distante inconnue.";
-    return { response: null, warning: `LangGraph distant indisponible: ${message}` };
+    const message = error instanceof Error ? error.message : "Unknown network error.";
+    throw new LangGraphUnavailableError(`LangGraph Cloud request failed: ${message}`);
   }
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new LangGraphUnavailableError(`LangGraph Cloud returned ${response.status}: ${body.slice(0, 180)}`, response.status);
+  }
+
+  const payload = (await response.json()) as RemoteGraphResult;
+  return normalizeRemoteResponse(payload);
 }

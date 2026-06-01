@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import agent.graph as graph_module
 from agent.graph import (
     _build_citations,
     _infer_audience,
@@ -8,6 +9,7 @@ from agent.graph import (
     _normalize_message,
     _select_relevant_sources,
     _tokenize,
+    retrieve_context,
 )
 
 
@@ -75,3 +77,17 @@ def test_citations_are_limited_and_ordered() -> None:
     )
 
     assert [citation["label"] for citation in citations] == ["[1]", "[2]"]
+
+
+def test_retrieve_context_is_strict_when_store_is_unavailable(monkeypatch) -> None:
+    def raise_missing_store():
+        raise RuntimeError("no store")
+
+    monkeypatch.setattr(graph_module, "get_store", raise_missing_store)
+
+    result = retrieve_context({"message": "Pourquoi limiter la vitesse ?", "audience": "mixte"}, {})
+
+    assert result["sources"] == []
+    assert result["retrieval_kind"] == "langsmith-agent-store"
+    assert result["retrieval_is_cloud"] is False
+    assert "Store semantique LangGraph indisponible" in result["retrieval_warning"]

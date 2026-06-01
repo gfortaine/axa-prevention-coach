@@ -8,8 +8,11 @@
     "index": {
       "embed": "openai:text-embedding-3-small",
       "dims": 1536,
-      "fields": ["title", "content", "tags", "sourceUrl"]
+      "fields": ["title", "content", "tags", "sourceUrl", "documentFamily", "guideDomain"]
     }
   },
-  "env": ".env"
+  "env": ".env",
+  "auth": {
+    "path": "./agent/auth.py:auth"
+  }
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { runPreventionGraph } from "@/lib/coach/agents";
+import { LangGraphUnavailableError } from "@/lib/coach/langgraph";
 import type { Audience } from "@/lib/coach/types";
 
 export const runtime = "nodejs";
@@ -70,16 +71,18 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unexpected coach_bot error.";
+    const isGraphError = error instanceof LangGraphUnavailableError;
     return NextResponse.json(
       {
-        error_code: "bad_request",
+        error_code: isGraphError ? "graph_unavailable" : "bad_request",
         is_success: false,
         data: {
           output: message,
           metadata: null,
+          sources: [],
         },
       },
-      { status: 400 },
+      { status: isGraphError ? 503 : 400 },
     );
   }
 }

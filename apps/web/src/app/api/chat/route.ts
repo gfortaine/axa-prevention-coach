@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { runPreventionGraph } from "@/lib/coach/agents";
+import { LangGraphUnavailableError } from "@/lib/coach/langgraph";
 import type { Audience, ChatHistoryMessage, ChatRequest } from "@/lib/coach/types";
 
 export const runtime = "nodejs";
@@ -56,6 +57,7 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unexpected chat error.";
-    return NextResponse.json({ error: message }, { status: 400 });
+    const status = error instanceof LangGraphUnavailableError ? 503 : 400;
+    return NextResponse.json({ error: message }, { status });
   }
 }

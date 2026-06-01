@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import json
 import math
 import os
 import re
 import time
 import unicodedata
 import uuid
-from pathlib import Path
 from typing import Any, Literal, NotRequired, TypedDict, cast
 
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -20,7 +18,6 @@ from langgraph.store.base import BaseStore
 Audience = Literal["particulier", "flotte", "mixte"]
 SourceTopic = Literal["securite_routiere", "climat_ges", "evenements_naturels"]
 
-CORPUS_PATH = Path(__file__).resolve().parents[1] / "corpus" / "axa_prevention.jsonl"
 NAMESPACE = ("axa_prevention", "documents")
 MAX_CITED_SOURCES = 2
 RETRIEVAL_LIMIT = 8
@@ -80,27 +77,10 @@ class AgentState(TypedDict, total=False):
     retrieval: dict[str, Any]
 
 
-def _load_corpus() -> list[dict[str, Any]]:
-    return [json.loads(line) for line in CORPUS_PATH.read_text(encoding="utf-8").splitlines() if line.strip()]
-
-
-CORPUS = _load_corpus()
-
-
 def _tokenize(value: str) -> list[str]:
     normalized = unicodedata.normalize("NFKD", value.lower())
     normalized = re.sub(r"[\u0300-\u036f]", "", normalized)
     return [token for token in re.split(r"[^a-z0-9]+", normalized) if len(token) > 2 and token not in STOP_WORDS]
-
-
-def _excerpt(content: str, query_tokens: list[str]) -> str:
-    sentences = re.split(r"(?<=[.!?])\s+", content)
-    best = max(
-        sentences,
-        key=lambda sentence: len([token for token in _tokenize(sentence) if token in query_tokens]),
-        default=content,
-    )
-    return best[:260]
 
 
 def _scenario_prompt(scenario_id: str | None) -> str | None:
@@ -142,29 +122,13 @@ def _infer_audience(message: str, requested: str | None) -> Audience:
     return "mixte"
 
 
-def _retrieve_local(query: str, audience: Audience, top_k: int = 5) -> list[dict[str, Any]]:
-    query_tokens = _tokenize(query)
-    scored: list[dict[str, Any]] = []
-    for document in CORPUS:
-        haystack = _tokenize(f"{document['title']} {' '.join(document.get('tags', []))} {document['content']}")
-        overlap = len([token for token in query_tokens if token in haystack])
-        tag_boost = len([tag for tag in document.get("tags", []) if (_tokenize(tag) or [""])[0] in query_tokens])
-        audience_boost = 1.4 if document.get("audience") in {audience, "mixte"} or audience == "mixte" else 0.4
-        public_boost = 1.2 if document.get("sourceType") == "public" else 0
-        score = round(overlap * audience_boost + tag_boost * 1.8 + public_boost, 2)
-        if score <= 0:
-            continue
-        scored.append({**document, "score": score, "excerpt": _excerpt(document["content"], query_tokens)})
-    return sorted(scored, key=lambda item: item["score"], reverse=True)[:top_k]
-
-
-def _retrieve_store(store: BaseStore | None, query: str, top_k: int = RETRIEVAL_LIMIT) -> list[dict[str, Any]]:
+def _retrieve_store(store: BaseStore, query: str, top_k: int = RETRIEVAL_LIMIT) -> list[dict[str, Any]]:
     if store is None:
-        return []
+        raise RuntimeError("LangGraph semantic store is unavailable.")
     try:
         results = store.search(NAMESPACE, query=query, limit=top_k)
-    except Exception:
-        return []
+    except Exception as exc:
+        raise RuntimeError("LangGraph semantic store search failed.") from exc
     documents: list[dict[str, Any]] = []
     for item in results:
         value = dict(item.value)
@@ -380,24 +344,6 @@ def _chat_history_context(history: Any) -> str:
     return "\n".join(lines) or "Aucun historique conversationnel recent."
 
 
-def _deterministic_answer(message: str, sources: list[dict[str, Any]], risk: RiskAssessment) -> str:
-    if not sources:
-        return (
-            "Je n'ai pas retrouve de source AXA Prevention assez pertinente pour repondre avec precision. "
-            "Je peux toutefois vous aider a reformuler la question ou a identifier le bon guide de prevention."
-        )
-
-    source_lines = " ".join(
-        f"{source.get('title', 'Source')} [{index + 1}]" for index, source in enumerate(sources[:MAX_CITED_SOURCES])
-    )
-    return (
-        f"D'apres les sources retrouvees, le niveau de risque est {risk['level']}. "
-        "La reponse doit rester proportionnee: reduire l'exposition immediate, adapter le comportement, "
-        "et demander une aide humaine si la situation devient urgente, medicale ou juridique. "
-        f"Sources mobilisees: {source_lines}."
-    )
-
-
 def _as_text(content: Any) -> str:
     if isinstance(content, str):
         return content
@@ -428,11 +374,7 @@ def _generate_answer(
     message: str, sources: list[dict[str, Any]], risk: RiskAssessment, state: AgentState
 ) -> dict[str, str]:
     if not os.environ.get("OPENAI_API_KEY"):
-        return {
-            "answer": _deterministic_answer(message, sources, risk),
-            "generationMode": "deterministic",
-            "generation_warning": "OPENAI_API_KEY absent: fallback deterministic source-grounded actif.",
-        }
+        raise RuntimeError("OPENAI_API_KEY is required for LangGraph Cloud generation.")
 
     is_general_conversation = _is_general_conversation(message)
     system_prompt = (
@@ -467,11 +409,7 @@ def _generate_answer(
         model = ChatOpenAI(model=os.environ.get("OPENAI_CHAT_MODEL", "gpt-4o-mini"), temperature=0.1)
         result = model.invoke([SystemMessage(content=system_prompt), HumanMessage(content=human_prompt)])
     except Exception as exc:
-        return {
-            "answer": _deterministic_answer(message, sources, risk),
-            "generationMode": "deterministic",
-            "generation_warning": f"Generation LLM indisponible ({type(exc).__name__}): fallback deterministic source-grounded actif.",
-        }
+        raise RuntimeError(f"LangGraph Cloud generation failed ({type(exc).__name__}).") from exc
 
     answer = _as_text(result.content).strip()
     if sources and not is_general_conversation and not re.search(r"\[\d+\]", answer):
@@ -507,10 +445,17 @@ def classify_intent(state: AgentState) -> dict[str, Any]:
 def retrieve_context(state: AgentState, config: RunnableConfig) -> dict[str, Any]:
     message = state["message"]
     try:
-        store: BaseStore | None = get_store()
-    except RuntimeError:
-        store = None
-    store_documents = _retrieve_store(store, message)
+        store: BaseStore = get_store()
+        store_documents = _retrieve_store(store, message)
+    except RuntimeError as exc:
+        return {
+            "sources": [],
+            "retrieval_label": "LangSmith Agent Server semantic store",
+            "retrieval_kind": "langsmith-agent-store",
+            "retrieval_is_cloud": False,
+            "retrieval_warning": f"Store semantique LangGraph indisponible: {exc}",
+        }
+
     store_documents = _select_relevant_sources(message, state["audience"], store_documents)
     if store_documents:
         return {
@@ -520,15 +465,11 @@ def retrieve_context(state: AgentState, config: RunnableConfig) -> dict[str, Any
             "retrieval_is_cloud": True,
         }
     return {
-        "sources": _select_relevant_sources(
-            message,
-            state["audience"],
-            _retrieve_local(message, state["audience"], top_k=RETRIEVAL_LIMIT),
-        ),
-        "retrieval_label": "Demo RAG local",
-        "retrieval_kind": "local-fallback",
+        "sources": [],
+        "retrieval_label": "LangSmith Agent Server semantic store",
+        "retrieval_kind": "langsmith-agent-store",
         "retrieval_is_cloud": False,
-        "retrieval_warning": "Fallback local actif; seed le LangSmith Agent Server store pour activer le RAG cloud.",
+        "retrieval_warning": "Store semantique LangGraph disponible mais aucune source pertinente n'a ete retrouvee.",
     }
 
 
@@ -538,6 +479,17 @@ def score_risk(state: AgentState) -> dict[str, Any]:
 
 def generate_answer(state: AgentState) -> dict[str, Any]:
     citations = [] if _is_general_conversation(state["message"]) else _build_citations(state["sources"])
+    if not citations and not _is_general_conversation(state["message"]):
+        answer = (
+            "Je ne peux pas repondre de facon fiable avec les sources AXA disponibles actuellement. "
+            "Le store semantique LangGraph est vide, indisponible ou n'a pas retourne de document pertinent."
+        )
+        return {
+            "answer": answer,
+            "generationMode": "retrieval-unavailable",
+            "generation_warning": "Generation documentaire bloquee par la politique RAG stricte.",
+            "citations": citations,
+        }
     return {**_generate_answer(state["message"], state["sources"], state["risk"], state), "citations": citations}
 
 
@@ -604,8 +556,8 @@ def compliance_check(state: AgentState) -> dict[str, Any]:
             },
             {
                 "name": state["retrieval_label"],
-                "status": "active" if state["retrieval_is_cloud"] else "fallback",
-                "detail": "RAG store semantique cible avec fallback local.",
+                "status": "active" if state["retrieval_is_cloud"] else "ready",
+                "detail": "RAG store semantique Postgres/pgvector gere par LangSmith/LangGraph.",
             },
             {"name": "LangSmith", "status": "active", "detail": "Traces, latence, noeuds et sources consultables."},
         ],
