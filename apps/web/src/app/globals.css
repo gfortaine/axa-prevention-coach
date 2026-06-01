@@ -1,0 +1,632 @@
+@import "@axa-fr/canopee-css/prospect/common/tokens.css";
+@import "@axa-fr/canopee-css/prospect/common/reboot.css";
+@import "@axa-fr/canopee-css/prospect/Button/ButtonApollo.css";
+@import "@axa-fr/canopee-css/prospect/Link/LinkApollo.css";
+@import "@axa-fr/canopee-css/prospect/Tag/TagApollo.css";
+
+:root {
+  --axa-blue: #00008f;
+  --bot-bubble: #f8f8f8;
+  --user-bubble: #eff3ff;
+  --chip-border: #eae7e7;
+  --chip-hover: #e7e7e7;
+  --input-bg: #e9ecf2;
+  --disclaimer: #5f5f5f;
+  --accent: #874fcb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: #fff;
+  color: #333;
+  font-family: var(--font-family-base), Arial, sans-serif;
+  margin: 0;
+  min-height: 100%;
+}
+
+button,
+textarea {
+  font: inherit;
+}
+
+.axa-shell {
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  min-height: 100vh;
+  width: min(100%, 1040px);
+}
+
+.axa-brandbar {
+  align-items: center;
+  border-bottom: 1px solid #e6e8f1;
+  display: flex;
+  gap: 18px;
+  margin: 0 auto;
+  min-height: 68px;
+  padding: 12px 0;
+  width: min(100% - 48px, 992px);
+}
+
+.axa-brandbar__logo {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+}
+
+.axa-brandbar__logo img {
+  display: block;
+  height: auto;
+  max-height: 46px;
+  width: 210px;
+}
+
+.axa-brandbar__identity {
+  display: grid;
+  gap: 2px;
+  line-height: 1.15;
+  min-width: 0;
+}
+
+.axa-brandbar__identity span {
+  color: #4a4d5f;
+  font-size: 0.875rem;
+}
+
+.axa-brandbar__identity .af-tag {
+  justify-self: start;
+  margin-bottom: 2px;
+}
+
+.axa-brandbar__nav {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+  margin-left: auto;
+}
+
+.coach-root {
+  background: #fff;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin: auto;
+  padding: 0 1rem;
+  width: min(100%, 832px);
+}
+
+.coach-header {
+  flex: 0 0 auto;
+  padding: 24px 25px 38px;
+}
+
+.coach-header__title {
+  color: var(--axa-blue);
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 125%;
+  margin: 0;
+}
+
+.coach-header__subtitle {
+  color: var(--axa-blue);
+  font-size: 34px;
+  font-weight: 300;
+  line-height: 125%;
+  margin: 5px 0 0;
+}
+
+.conversation {
+  background: #fff;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 0.75rem 0;
+}
+
+.bot-message {
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+  width: 90%;
+}
+
+.bot-message__meta {
+  align-items: center;
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+}
+
+.bot-message__meta span {
+  color: var(--accent);
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 425;
+  line-height: 1.25;
+}
+
+.bot-speaker {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  height: 2rem;
+  margin-left: auto;
+  margin-right: 1px;
+  padding: 0;
+  transform: scale(0.9);
+  width: 2rem;
+}
+
+.bot-speaker:hover {
+  opacity: 0.5;
+}
+
+.bot-speaker svg {
+  display: block;
+  height: 24px;
+  width: 24px;
+}
+
+.bot-speaker--active {
+  opacity: 0.5;
+}
+
+.bot-bubble,
+.user-message {
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 425;
+  line-height: 1.5;
+  margin: 0;
+  padding: 17px 16px;
+}
+
+.bot-bubble {
+  background: var(--bot-bubble);
+  color: #333;
+}
+
+.bot-bubble p,
+.user-message p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.bot-bubble a,
+.bot-bubble a:visited {
+  color: inherit;
+}
+
+.user-message {
+  align-self: flex-end;
+  background: var(--user-bubble);
+  color: #000;
+  margin-bottom: 1rem;
+  padding: 18px 17px;
+  width: 90%;
+}
+
+.bot-suggestions {
+  display: block;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.bot-suggestions__intro {
+  color: #333;
+  font-size: 1rem;
+  font-weight: 425;
+  line-height: 1.4;
+  margin: 0 0 14px;
+}
+
+.bot-suggestions__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.bot-suggestion {
+  align-items: flex-start;
+  background: #fff;
+  border: 1px solid var(--chip-border);
+  border-radius: 8px;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  flex: 1 1 0;
+  font-size: 1rem;
+  font-weight: 425;
+  gap: 10px;
+  line-height: 1.25;
+  min-height: 0;
+  padding: 16px;
+  text-align: left;
+}
+
+.bot-suggestion:hover,
+.bot-suggestion:focus-visible {
+  background: var(--chip-hover);
+  outline: 0;
+}
+
+.star-icon-suggestion {
+  fill: var(--accent);
+  flex: 0 0 auto;
+  height: 30px;
+  margin-top: -3px;
+  width: 30px;
+}
+
+.bot-message__meta .star-icon-suggestion {
+  height: 19px;
+  width: 19px;
+}
+
+.guide-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.guide-links a {
+  border: 1px solid #e3e6f3;
+  border-radius: 999px;
+  color: var(--axa-blue);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 7px 10px;
+  text-decoration: none;
+}
+
+.guide-links a:hover,
+.source-citation:hover {
+  text-decoration: underline;
+}
+
+.source-citation,
+.source-citation:visited {
+  color: var(--axa-blue);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.telemetry-note {
+  color: #6b6f82;
+  font-size: 0.75rem;
+  margin: 8px 0 0;
+}
+
+.chat-footer {
+  background: #fff;
+  flex: 0 0 auto;
+  padding: 0.25rem 0 1rem;
+}
+
+.chat-input {
+  align-items: center;
+  background: var(--input-bg);
+  border-radius: 50px;
+  color: var(--axa-blue);
+  display: flex;
+  font-weight: 500;
+  min-height: 60px;
+  padding: 5px 64px 5px 24px;
+  position: relative;
+}
+
+.chat-input:focus-within {
+  outline: 2px solid rgba(0, 0, 143, 0.24);
+  outline-offset: 2px;
+}
+
+.chat-input textarea {
+  background: none;
+  border: 0;
+  color: #000;
+  flex: 1;
+  line-height: 1.35;
+  max-height: 90px;
+  min-width: 0;
+  outline: 0;
+  overflow: auto;
+  padding: 4px;
+  resize: none;
+}
+
+.chat-input textarea::placeholder {
+  color: #5f5f5f;
+  opacity: 1;
+}
+
+.chat-icon-button {
+  background: none;
+  border: 0;
+  color: var(--axa-blue);
+  cursor: pointer;
+  display: grid;
+  height: 32px;
+  margin: 0;
+  padding: 4px;
+  place-items: center;
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+}
+
+.send-when-text {
+  display: none;
+}
+
+.chat-icon-button.chat-icon-button--hidden {
+  display: none;
+}
+
+.send-when-text.chat-icon-button--visible {
+  display: grid;
+}
+
+.chat-icon-button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.chat-icon-button--active {
+  color: var(--accent);
+}
+
+.chat-icon-button svg {
+  fill: currentcolor;
+  height: 22px;
+  width: 22px;
+}
+
+.chat-listening-bars {
+  align-items: center;
+  display: flex;
+  gap: 2px;
+  height: 32px;
+  margin: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 56px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.chat-listening-bars span {
+  animation: listening-wave 0.7s ease-in-out infinite alternate;
+  background: var(--axa-blue);
+  border-radius: 999px;
+  display: block;
+  height: 8px;
+  opacity: 0.55;
+  width: 2px;
+}
+
+.chat-privacy-disclaimer {
+  color: var(--disclaimer);
+  font-size: 0.75rem;
+  font-weight: 425;
+  line-height: 1.35;
+  margin: 0.375rem 28px 0;
+  text-align: left;
+}
+
+.form-error {
+  color: #c91432;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0.5rem 1rem 0;
+  text-align: center;
+}
+
+.voice-status {
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin: 0.375rem 28px 0;
+}
+
+.bot-loader {
+  align-items: center;
+  display: flex;
+  gap: 6px;
+  min-height: 58px;
+}
+
+.bot-loader span {
+  animation: bot-loader 1s ease-in-out infinite;
+  background: #9a9a9a;
+  border-radius: 999px;
+  display: block;
+  height: 8px;
+  width: 8px;
+}
+
+.bot-loader span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.bot-loader span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.sr-only {
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.guide-viewer {
+  background: #f6f7fb;
+  color: #202124;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.guide-viewer__header {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e3e6f3;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 143, 0.08);
+  display: flex;
+  gap: 18px;
+  margin: 0 auto 18px;
+  max-width: 1120px;
+  padding: 16px;
+}
+
+.guide-viewer__logo img {
+  display: block;
+  height: 46px;
+  width: 46px;
+}
+
+.guide-viewer__header h1 {
+  color: var(--axa-blue);
+  font-size: clamp(1.4rem, 2.2vw, 2rem);
+  line-height: 1.15;
+  margin: 8px 0 4px;
+}
+
+.guide-viewer__header p {
+  color: #5c6070;
+  margin: 0;
+}
+
+.guide-viewer__actions {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.guide-viewer__link {
+  white-space: nowrap;
+}
+
+.guide-viewer__pdf {
+  background: #fff;
+  border: 1px solid #e3e6f3;
+  border-radius: 16px;
+  height: calc(100vh - 150px);
+  margin: 0 auto;
+  max-width: 1120px;
+  overflow: hidden;
+}
+
+.guide-viewer__pdf iframe {
+  border: 0;
+  height: 100%;
+  width: 100%;
+}
+
+@keyframes bot-loader {
+  0%,
+  80%,
+  100% {
+    opacity: 0.4;
+    transform: translateY(0);
+  }
+
+  40% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes listening-wave {
+  from {
+    transform: scaleY(0.45);
+  }
+
+  to {
+    transform: scaleY(2.5);
+  }
+}
+
+@media (max-width: 720px) {
+  .coach-root {
+    padding: 0 0.75rem;
+  }
+
+  .axa-brandbar {
+    align-items: flex-start;
+    margin: 0 12px;
+  }
+
+  .axa-brandbar__logo img {
+    width: 150px;
+  }
+
+  .axa-brandbar__nav {
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .coach-header {
+    padding: 1.5rem 0.5rem 2rem;
+  }
+
+  .coach-header__title,
+  .coach-header__subtitle {
+    font-size: 24px;
+  }
+
+  .bot-message,
+  .user-message {
+    width: 100%;
+  }
+
+  .bot-suggestions {
+    gap: 12px;
+  }
+
+  .bot-suggestions__grid {
+    gap: 12px;
+  }
+
+  .bot-suggestion {
+    flex-basis: 100%;
+    min-height: 0;
+  }
+
+  .guide-viewer {
+    padding: 12px;
+  }
+
+  .guide-viewer__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .guide-viewer__actions {
+    margin-left: 0;
+  }
+
+  .guide-viewer__pdf {
+    height: calc(100vh - 250px);
+  }
+}
