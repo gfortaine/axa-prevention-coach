@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.venv/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+coverage/
+.coverage
+htmlcov/
+__pycache__/
+*.py[cod]
+*.tsbuildinfo
+
+# Local runtimes
+.vercel/
+.langgraph_api/
+.pytest_cache/
+.ruff_cache/
+.pyright/
+
+# Secrets and local config
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Large/private presentation exports
+*.pptx
+*.key
