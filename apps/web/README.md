@@ -1,6 +1,6 @@
 # Web app
 
-Next.js 16 / React 19 application for the Prevention Coach RAG demo.
+Next.js 16 / React 19 application for the AXA Prevention Coach demo.
 
 ## Commands
 

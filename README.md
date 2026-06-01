@@ -1,6 +1,6 @@
-# Prevention Coach RAG
+# AXA Prevention Coach
 
-[![CI](https://github.com/gfortaine/prevention-coach-rag/actions/workflows/ci.yml/badge.svg)](https://github.com/gfortaine/prevention-coach-rag/actions/workflows/ci.yml)
+[![CI](https://github.com/gfortaine/axa-prevention-coach/actions/workflows/ci.yml/badge.svg)](https://github.com/gfortaine/axa-prevention-coach/actions/workflows/ci.yml)
 
 Independent interview prototype for an agentic prevention assistant: a
 Next.js BFF and AXA-like UI connected to a Python LangGraph agent, semantic

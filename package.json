@@ -1,5 +1,5 @@
 {
-  "name": "prevention-coach-rag",
+  "name": "axa-prevention-coach",
   "version": "1.0.0",
   "private": true,
   "description": "Public prevention coach RAG monorepo with a Next.js BFF and Python LangGraph agent.",
