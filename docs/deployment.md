@@ -4,6 +4,21 @@
 
 `apps/web` is deployable as a standard Next.js application.
 
+For Vercel Git Integration, configure the project with:
+
+```text
+Framework Preset: Next.js
+Root Directory: apps/web
+Install Command: pnpm install --frozen-lockfile
+Build Command: pnpm run build
+Output Directory: .next
+Production Branch: main
+```
+
+The monorepo root package only contains Turbo workspace scripts. If Vercel uses
+the repository root as its Root Directory, it cannot detect Next.js because
+`next` is declared in `apps/web/package.json`.
+
 Required production variables depend on the desired runtime:
 
 ```bash
@@ -57,8 +72,10 @@ Cloud deployment should use workspace-scoped secrets only; never commit keys.
 The repository includes:
 
 - `ci.yml` for mandatory quality gates.
-- `deploy-web.yml` as an optional Vercel deployment workflow.
+- `deploy-web.yml` as an optional manual Vercel deployment workflow.
 
-For interview speed, Vercel Git Integration can be simpler for previews.
+For interview speed, Vercel Git Integration is the production deployment source
+of truth. The GitHub deploy workflow is manual-only to avoid conflicting or
+misleading deployment signals.
 For controlled enterprise CI/CD, GitHub Actions or Azure DevOps can own the
 deployment step with environment approvals.
