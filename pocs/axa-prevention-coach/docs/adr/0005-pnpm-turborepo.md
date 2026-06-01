@@ -7,7 +7,8 @@ Accepted.
 ## Decision
 
 Use `pnpm` workspaces and Turborepo at the repository root for JavaScript tasks.
-The Python LangGraph service remains managed by `uv` in `services/agent`.
+The Python LangGraph service remains managed by `uv` in
+`pocs/axa-prevention-coach/services/agent`.
 
 ## Rationale
 

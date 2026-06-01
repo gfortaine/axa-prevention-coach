@@ -1,8 +1,8 @@
 {
-  "name": "prevention-coach-web",
+  "name": "@client-ai-pocs/axa-prevention-web",
   "version": "1.0.0",
   "private": true,
-  "description": "Standalone AXA Prevention Coach MVP for road-safety RAG demo",
+  "description": "Next.js BFF and UI for the AXA prevention coach POC.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

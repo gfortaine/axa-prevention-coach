@@ -13,20 +13,29 @@ Frontend:
 
 ```bash
 pnpm install
-pnpm run lint
-pnpm run typecheck
-pnpm run build
+pnpm axa:web:lint
+pnpm axa:web:typecheck
+pnpm axa:web:build
 ```
 
 Agent:
 
 ```bash
-cd services/agent
+cd pocs/axa-prevention-coach/services/agent
 uv sync --group dev
 uv run ruff check .
 uv run ruff format --check .
 uv run pyright
 uv run pytest
+```
+
+Monorepo-wide:
+
+```bash
+pnpm run lint
+pnpm run typecheck
+pnpm run test
+pnpm run build
 ```
 
 ## Commit style

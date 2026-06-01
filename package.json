@@ -1,18 +1,24 @@
 {
-  "name": "prevention-coach-rag",
+  "name": "client-ai-pocs",
   "version": "1.0.0",
   "private": true,
-  "description": "Public prevention coach RAG monorepo with a Next.js BFF and Python LangGraph agent.",
+  "description": "Polyglot monorepo for client AI POCs and MVPs.",
   "packageManager": "pnpm@10.11.0",
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev --filter=prevention-coach-web",
+    "dev": "turbo run dev",
     "lint": "turbo run lint",
+    "format:check": "turbo run format:check",
+    "test": "turbo run test",
     "typecheck": "turbo run typecheck",
-    "web:build": "pnpm --filter prevention-coach-web build",
-    "web:dev": "pnpm --filter prevention-coach-web dev",
-    "web:lint": "pnpm --filter prevention-coach-web lint",
-    "web:typecheck": "pnpm --filter prevention-coach-web typecheck"
+    "axa:web:build": "pnpm --filter @client-ai-pocs/axa-prevention-web build",
+    "axa:web:dev": "pnpm --filter @client-ai-pocs/axa-prevention-web dev",
+    "axa:web:lint": "pnpm --filter @client-ai-pocs/axa-prevention-web lint",
+    "axa:web:typecheck": "pnpm --filter @client-ai-pocs/axa-prevention-web typecheck",
+    "axa:agent:dev": "pnpm --filter @client-ai-pocs/axa-prevention-agent dev",
+    "axa:agent:lint": "pnpm --filter @client-ai-pocs/axa-prevention-agent lint",
+    "axa:agent:typecheck": "pnpm --filter @client-ai-pocs/axa-prevention-agent typecheck",
+    "axa:agent:test": "pnpm --filter @client-ai-pocs/axa-prevention-agent test"
   },
   "devDependencies": {
     "turbo": "^2.9.16"

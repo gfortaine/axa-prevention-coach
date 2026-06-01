@@ -12,6 +12,12 @@
     "lint": {
       "outputs": []
     },
+    "format:check": {
+      "outputs": []
+    },
+    "test": {
+      "outputs": []
+    },
     "typecheck": {
       "outputs": []
     }
