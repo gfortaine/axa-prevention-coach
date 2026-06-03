@@ -88,6 +88,23 @@ const scenarios = [
 const initialResponse: ChatResponse = {
   id: "initial",
   answer: "",
+  status: "unavailable",
+  grounding: {
+    required: true,
+    status: "unavailable",
+    sourceCount: 0,
+  },
+  diagnostics: {
+    generation: {
+      backend: "mistral-agent",
+      mode: "retrieval-unavailable",
+    },
+    retrieval: {
+      backend: "mistral-document-library",
+      label: "Mistral Document Library",
+      isCloud: false,
+    },
+  },
   generationMode: "retrieval-unavailable",
   retrieval: {
     kind: "mistral-document-library",

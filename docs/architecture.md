@@ -29,6 +29,12 @@ The production MVP path is intentionally small and explicit:
 4. normalize Mistral references into `/guide/<domain>?page=<n>` links;
 5. return the stable `ChatResponse` contract.
 
+`ChatResponse` separates product semantics from implementation diagnostics:
+`status` and `grounding` describe whether the answer is source-grounded, while
+`diagnostics.generation` and `diagnostics.retrieval` carry backend names for
+technical review. The older `generationMode` and `retrieval.kind` fields remain
+deprecated aliases for MVP compatibility.
+
 The previous Python LangGraph graph remains in `services/agent` as reference
 material while the strategic target moves to Mistral Workflows.
 

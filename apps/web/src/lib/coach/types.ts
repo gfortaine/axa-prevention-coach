@@ -4,6 +4,8 @@ export type RetrieverKind = "mistral-document-library";
 
 export type GenerationMode = "mistral-document-library" | "retrieval-unavailable";
 
+export type AnswerStatus = "grounded" | "unavailable";
+
 export interface PreventionDocument {
   id: string;
   title: string;
@@ -88,10 +90,34 @@ export interface ResponseTelemetry {
   response_time: number;
 }
 
+export interface GroundingMetadata {
+  required: boolean;
+  status: AnswerStatus;
+  sourceCount: number;
+}
+
+export interface ResponseDiagnostics {
+  generation: {
+    backend: "mistral-agent";
+    mode: GenerationMode;
+  };
+  retrieval: {
+    backend: RetrieverKind;
+    label: string;
+    isCloud: boolean;
+    warning?: string;
+  };
+}
+
 export interface ChatResponse {
   id: string;
   answer: string;
+  status: AnswerStatus;
+  grounding: GroundingMetadata;
+  diagnostics: ResponseDiagnostics;
+  /** @deprecated Use status/diagnostics.generation instead. */
   generationMode: GenerationMode;
+  /** @deprecated Use grounding/diagnostics.retrieval instead. */
   retrieval: {
     kind: RetrieverKind;
     label: string;

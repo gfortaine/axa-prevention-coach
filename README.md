@@ -35,6 +35,9 @@ flowchart LR
   Pinecone fallback for documentary answers.
 - **BFF compatibility:** `/api/chat` and `/coach_bot` contracts for a web UI
   and reverse-engineered AXA-style surface.
+- **Response contract:** `/api/chat` exposes product-facing `status` and
+  `grounding` fields first; legacy `generationMode` and `retrieval.kind` remain
+  as compatibility aliases for technical smoke tests.
 - **Voice:** server-side Mistral Voxtral TTS streaming via `/api/tts/stream`.
 - **Design system:** AXA France Canopée `prospect` tokens/components, with
   custom chat surfaces for fidelity to the public assistant behavior.

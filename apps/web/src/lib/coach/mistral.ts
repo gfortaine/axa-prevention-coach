@@ -3,6 +3,7 @@ import type {
   AgentTraceStep,
   ArchitectureLayer,
   Audience,
+  AnswerStatus,
   ChatHistoryMessage,
   ChatRequest,
   ChatResponse,
@@ -519,16 +520,37 @@ function buildResponse(args: {
   warning?: string;
 }): ChatResponse {
   const risk = assessRisk(args.message, args.audience);
+  const status: AnswerStatus = args.generationMode === "mistral-document-library" ? "grounded" : "unavailable";
+  const retrieval = {
+    kind: "mistral-document-library" as const,
+    label: "Mistral Document Library",
+    isCloud: args.retrievalIsCloud,
+    warning: args.warning,
+  };
+
   return {
     id: crypto.randomUUID(),
     answer: args.answer,
-    generationMode: args.generationMode,
-    retrieval: {
-      kind: "mistral-document-library",
-      label: "Mistral Document Library",
-      isCloud: args.retrievalIsCloud,
-      warning: args.warning,
+    status,
+    grounding: {
+      required: true,
+      status,
+      sourceCount: args.citations.length,
     },
+    diagnostics: {
+      generation: {
+        backend: "mistral-agent",
+        mode: args.generationMode,
+      },
+      retrieval: {
+        backend: retrieval.kind,
+        label: retrieval.label,
+        isCloud: retrieval.isCloud,
+        warning: retrieval.warning,
+      },
+    },
+    generationMode: args.generationMode,
+    retrieval,
     risk,
     sources: args.sources,
     citations: args.citations,
