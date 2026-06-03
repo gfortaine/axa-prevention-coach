@@ -40,3 +40,5 @@ __pycache__/
 *.pptx
 !docs/AXA-Prevention-Coach-support.pptx
 *.key
+.vercel
+.env*.local

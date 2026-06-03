@@ -128,6 +128,9 @@ def main() -> None:
                     "title": record.get("title"),
                     "sourceUrl": record.get("sourceUrl"),
                     "citationUrl": record.get("citationUrl"),
+                    "citationUrls": record.get("citationUrls", []),
+                    "sourcePage": page_from_url(str(record.get("citationUrl") or "")),
+                    "pageHints": record.get("pageHints", []),
                     "guideDomain": record.get("guideDomain"),
                     "audience": record.get("audience"),
                     "tags": record.get("tags", []),
@@ -256,15 +259,40 @@ def document_records(documents: list[str]) -> list[dict[str, Any]]:
 
 
 def dedupe_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    seen = set()
-    unique = []
+    by_source: dict[str, dict[str, Any]] = {}
     for record in records:
         source_url = record.get("sourceUrl")
-        if not source_url or source_url in seen:
+        if not source_url:
             continue
-        seen.add(source_url)
-        unique.append(record)
-    return unique
+        if source_url not in by_source:
+            merged = dict(record)
+            merged["citationUrls"] = [record["citationUrl"]] if record.get("citationUrl") else []
+            page = page_from_url(str(record.get("citationUrl") or ""))
+            merged["pageHints"] = [page] if page else []
+            by_source[source_url] = merged
+            continue
+        existing = by_source[source_url]
+        if record.get("citationUrl"):
+            citation_urls = existing.setdefault("citationUrls", [])
+            if isinstance(citation_urls, list) and record["citationUrl"] not in citation_urls:
+                citation_urls.append(record["citationUrl"])
+        page = page_from_url(str(record.get("citationUrl") or ""))
+        if page:
+            page_hints = existing.setdefault("pageHints", [])
+            if isinstance(page_hints, list) and page not in page_hints:
+                page_hints.append(page)
+        if isinstance(record.get("tags"), list):
+            tags = existing.setdefault("tags", [])
+            if isinstance(tags, list):
+                tags.extend(tag for tag in record["tags"] if tag not in tags)
+    return list(by_source.values())
+
+
+def page_from_url(value: str) -> int | None:
+    if "page=" not in value:
+        return None
+    raw_page = value.split("page=", 1)[1].split("&", 1)[0].split("#", 1)[0]
+    return int(raw_page) if raw_page.isdigit() else None
 
 
 def materialize_document(source: str, temp_dir: Path) -> Path:

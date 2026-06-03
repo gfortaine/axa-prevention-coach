@@ -169,7 +169,7 @@ export const preventionCorpus: PreventionDocument[] = [
     sourceUrl: "demo://architecture/rag-security",
     sourceType: "architecture",
     audience: "mixte",
-    tags: ["rag", "security", "rgpd", "guardrails", "audit", "langgraph"],
+    tags: ["rag", "security", "rgpd", "guardrails", "audit", "mistral-enterprise"],
     content:
       "Un RAG assureur doit separer instructions et documents, citer les sources, journaliser les traces, limiter les donnees personnelles, filtrer les injections de prompt, indiquer l'incertitude et escalader vers un humain lorsque la question sort du corpus ou touche au juridique ou medical.",
   },

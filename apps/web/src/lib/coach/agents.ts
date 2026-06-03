@@ -1,5 +1,5 @@
 import { getScenarioPrompt } from "./corpus";
-import { runRemotePreventionGraph } from "./langgraph";
+import { runMistralPreventionAgent } from "./mistral";
 import type { ChatRequest, ChatResponse } from "./types";
 
 export async function runPreventionGraph(request: ChatRequest): Promise<ChatResponse> {
@@ -9,5 +9,5 @@ export async function runPreventionGraph(request: ChatRequest): Promise<ChatResp
     throw new Error("A message or scenarioId is required.");
   }
 
-  return runRemotePreventionGraph({ ...request, message });
+  return runMistralPreventionAgent({ ...request, message });
 }

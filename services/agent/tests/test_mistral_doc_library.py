@@ -107,6 +107,42 @@ def test_parse_mistral_tool_reference_with_url_metadata() -> None:
     assert result["usage"] == {"total_tokens": 10, "input_tokens": 4, "output_tokens": 6}
 
 
+def test_parse_mistral_reference_uses_page_hints_when_page_is_missing() -> None:
+    response = SimpleNamespace(
+        outputs=[
+            SimpleNamespace(
+                type="message.output",
+                content=[
+                    SimpleNamespace(type="text", text="Limiter la vitesse protege les conducteurs "),
+                    SimpleNamespace(
+                        type="tool_reference",
+                        document_id="doc-road",
+                        title="Livret prevention routiere",
+                    ),
+                    SimpleNamespace(type="text", text="."),
+                ],
+            )
+        ]
+    )
+
+    result = parse_mistral_document_response(
+        response,
+        {
+            "doc-road": {
+                "document_id": "doc-road",
+                "title": "Guide De La Prevention Routiere",
+                "guideDomain": "securite_routiere",
+                "sourceUrl": "https://example.test/livret.pdf",
+                "citationUrl": "/guide/securite_routiere?page=16",
+                "pageHints": [16, 20],
+            }
+        },
+    )
+
+    assert result["citations"][0]["sourceUrl"] == "/guide/securite_routiere?page=20"
+    assert result["citations"][0]["page"] == 20
+
+
 def test_parse_does_not_fabricate_inline_citation_when_reference_is_not_inline() -> None:
     response = {
         "outputs": [

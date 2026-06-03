@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { runPreventionGraph } from "@/lib/coach/agents";
-import { LangGraphUnavailableError } from "@/lib/coach/langgraph";
+import { MistralDocumentLibraryUnavailableError } from "@/lib/coach/mistral";
 import type { Audience } from "@/lib/coach/types";
 
 export const runtime = "nodejs";
+export const maxDuration = 120;
 
 interface BffChatHistoryItem {
   content?: unknown;
@@ -71,10 +72,10 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unexpected coach_bot error.";
-    const isGraphError = error instanceof LangGraphUnavailableError;
+    const isMistralError = error instanceof MistralDocumentLibraryUnavailableError;
     return NextResponse.json(
       {
-        error_code: isGraphError ? "graph_unavailable" : "bad_request",
+        error_code: isMistralError ? "mistral_unavailable" : "bad_request",
         is_success: false,
         data: {
           output: message,
@@ -82,7 +83,7 @@ export async function POST(request: Request) {
           sources: [],
         },
       },
-      { status: isGraphError ? 503 : 400 },
+      { status: isMistralError ? 503 : 400 },
     );
   }
 }

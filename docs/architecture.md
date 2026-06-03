@@ -6,43 +6,43 @@
 flowchart TD
   A[Browser] --> B[Next.js UI - apps/web]
   B --> C[Next.js BFF routes]
-  C --> D[LangGraph Cloud auth token - server side only]
-  D --> E[LangGraph Agent Server EU]
-  E --> G[Mistral RAG Agent document_library]
+  C --> D[Owned ChatResponse adapter]
+  D --> G[Mistral RAG Agent document_library]
   G --> H[(Mistral Document Library<br/>managed vector store)]
-  E --> I[LangSmith traces]
   C --> J[Mistral Voxtral TTS]
+  D --> K[Mistral Studio target<br/>Workflows / Observability / Judges]
 ```
 
-The BFF does not expose LangGraph credentials to the browser. If LangGraph Cloud
-is unavailable, `/api/chat` and `/coach_bot` return an explicit service error
+The BFF does not expose Mistral credentials to the browser. It calls the
+Mistral Conversations API server-side with the provisioned prevention Agent,
+`store: false`, and an owned response contract. If Mistral Document Library is
+unavailable, `/api/chat` and `/coach_bot` return an explicit unavailable state
 instead of fabricating a local answer.
 
-## Agent graph
+## Agent shape
 
-The Python agent is intentionally small and explicit:
+The production MVP path is intentionally small and explicit:
 
-1. `classify_intent`
-2. `retrieve_context`
-3. `score_risk`
-4. `generate_answer`
-5. `compliance_check`
-6. `format_bff`
+1. validate and normalize the request in the Next.js BFF;
+2. infer audience and deterministic risk signals;
+3. call the Mistral Agent with the `document_library` tool;
+4. normalize Mistral references into `/guide/<domain>?page=<n>` links;
+5. return the stable `ChatResponse` contract.
 
-This mirrors a production agentic platform pattern while remaining readable for
-an interview review.
+The previous Python LangGraph graph remains in `services/agent` as reference
+material while the strategic target moves to Mistral Workflows.
 
 ## RAG pipeline
 
 The MVP uses Mistral Document Library via Mistral Agents API. Documentary
 answers are Mistral-only: if the Mistral Library/Agent is missing or unavailable,
-the graph returns an explicit unavailable state instead of falling back to
+the BFF returns an explicit unavailable state instead of falling back to
 OpenAI, a local lexical answer, Qdrant, Ragie or Pinecone.
 
 Mistral Document Library is the managed vector store. Mistral owns parsing,
-chunking, embeddings, vector search and raw references. LangGraph/LangSmith own
-the application control plane: routing, graph state, fail-closed behavior,
-tracing/evals, and normalization into the stable web citation contract.
+chunking, embeddings, vector search and raw references. The application owns
+the public contract, trace IDs, fail-closed behavior, deterministic risk scoring
+and normalization into the stable web citation contract.
 
 File ingestion is separate from retrieval:
 
@@ -52,18 +52,16 @@ File ingestion is separate from retrieval:
 3. The script uploads PDF/DOCX/PPTX/TXT files to the Library and can poll
    processing status.
 4. The script creates/reuses a Mistral Agent with the `document_library` tool.
-5. The graph calls that single-purpose Mistral RAG Agent with `store=False`
+5. The BFF calls that single-purpose Mistral RAG Agent with `store=false`
    when supported and normalizes Mistral `tool_reference` / `reference` chunks
    into internal `/guide/<domain>?page=<n>` links.
 
 Local corpus metadata remains useful only for stable titles, guide domains and
 page links. It is not a fallback retriever.
 
-This differs from a fully Mistral-native app such as
-`antoine-palazz/use-case-design`: that reference lets Mistral Agents,
-Conversations and handoffs own most orchestration. This repo keeps LangGraph as
-the portfolio control plane and uses the Mistral Agent only as a managed RAG
-appliance behind one graph node.
+This is close to a Mistral-native app such as `antoine-palazz/use-case-design`,
+but the web contract, citation repair, product metadata and trace identifiers
+remain owned by this application.
 
 ## Enterprise target trajectory
 
@@ -73,7 +71,9 @@ trajectory is:
 - Azure API Management or equivalent gateway in front of BFF/agent services.
 - Mistral or an AXA-approved model gateway for generation.
 - Mistral Document Library or AXA-governed managed RAG for PDF retrieval.
+- Mistral Workflows for durable multi-step processes once worker hosting and
+  Studio entitlements are proven.
 - OpenShift/Kubernetes for controlled runtime isolation.
 - OAuth2/OIDC, managed identities and Key Vault for authentication/secrets.
-- OpenTelemetry traces exported to Dynatrace and/or LangSmith/Langfuse.
-- MLflow/evaluation pipeline for prompts, retrieval quality and model changes.
+- Mistral Studio Observability, Judges, Campaigns, Datasets and AI Registry as
+  the default quality plane; OpenTelemetry/internal logs only where needed.

@@ -2,7 +2,7 @@
   "name": "axa-prevention-coach",
   "version": "1.0.0",
   "private": true,
-  "description": "Public prevention coach RAG monorepo with a Next.js BFF and Python LangGraph agent.",
+  "description": "Public prevention coach RAG monorepo with a Next.js BFF and Mistral Document Library agent.",
   "packageManager": "pnpm@10.11.0",
   "scripts": {
     "build": "turbo run build",

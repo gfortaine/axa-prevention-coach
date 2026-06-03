@@ -1,14 +1,8 @@
 export type Audience = "particulier" | "flotte" | "mixte";
 
-export type RetrieverKind =
-  | "mistral-document-library"
-  | "langsmith-agent-store"
-  | "langgraph-agent-server"
-  | "vertex-ai-search"
-  | "pinecone-serverless"
-  | "elastic-cloud";
+export type RetrieverKind = "mistral-document-library";
 
-export type GenerationMode = "mistral-document-library" | "langgraph-cloud" | "retrieval-unavailable";
+export type GenerationMode = "mistral-document-library" | "retrieval-unavailable";
 
 export interface PreventionDocument {
   id: string;

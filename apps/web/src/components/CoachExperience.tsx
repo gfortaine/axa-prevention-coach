@@ -88,11 +88,11 @@ const scenarios = [
 const initialResponse: ChatResponse = {
   id: "initial",
   answer: "",
-  generationMode: "langgraph-cloud",
+  generationMode: "retrieval-unavailable",
   retrieval: {
-    kind: "langgraph-agent-server",
-    label: "Pret",
-    isCloud: true,
+    kind: "mistral-document-library",
+    label: "Mistral Document Library",
+    isCloud: false,
   },
   risk: {
     score: 18,

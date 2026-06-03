@@ -1,0 +1,75 @@
+{
+  "library_id": "019e859e-419b-76cd-8e68-f88972b20e99",
+  "agent_id": "ag_019e859edad87112bbe76a03e91ebad5",
+  "documents": [
+    {
+      "document_id": "43d5e72c-9eaa-488f-857a-cbb000d11fd9",
+      "file_name": "5186d075-ba22-4361-a267-28e1a9132f9b_livret_AXA_2024_PR_web.pdf",
+      "title": "Guide De La Prevention Routiere.pdf - vitesse et mortalite",
+      "sourceUrl": "https://coreaxaprevention.cdn.axa-contento-118412.eu/coreaxaprevention/5186d075-ba22-4361-a267-28e1a9132f9b_livret_AXA_2024_PR_web.pdf",
+      "citationUrl": "/guide/securite_routiere?page=16",
+      "citationUrls": [
+        "/guide/securite_routiere?page=16",
+        "/guide/securite_routiere?page=20"
+      ],
+      "sourcePage": 16,
+      "pageHints": [
+        16,
+        20
+      ],
+      "guideDomain": "securite_routiere",
+      "audience": "particulier",
+      "tags": [
+        "securite-routiere",
+        "vitesse",
+        "mortalite",
+        "barometre",
+        "accident",
+        "freinage",
+        "distance-arret",
+        "fatigue"
+      ]
+    },
+    {
+      "document_id": "5f239617-9997-4329-a70b-33bb9ea6f11a",
+      "file_name": "5a7d7a05-922d-4de8-a0f7-9348dffc5df4_guide-climat-environnement.pdf",
+      "title": "Guide Climat et Environnement",
+      "sourceUrl": "https://coreaxaprevention.cdn.axa-contento-118412.eu/coreaxaprevention/5a7d7a05-922d-4de8-a0f7-9348dffc5df4_guide-climat-environnement.pdf",
+      "citationUrl": "/guide/climat",
+      "citationUrls": [
+        "/guide/climat"
+      ],
+      "sourcePage": null,
+      "pageHints": [],
+      "guideDomain": "climat",
+      "audience": "mixte",
+      "tags": [
+        "climat",
+        "environnement",
+        "gaz-effet-serre",
+        "empreinte-carbone"
+      ]
+    },
+    {
+      "document_id": "551f19c1-505d-4a84-bbad-c975399b3020",
+      "file_name": "43b57919-5028-42e1-9b90-2312304be754_2000567-12.24+MINI+GUIDE+2024.pdf",
+      "title": "Bien se proteger face aux evenements naturels",
+      "sourceUrl": "https://coreaxaprevention.cdn.axa-contento-118412.eu/coreaxaprevention/43b57919-5028-42e1-9b90-2312304be754_2000567-12.24+MINI+GUIDE+2024.pdf",
+      "citationUrl": "/guide/miniguide",
+      "citationUrls": [
+        "/guide/miniguide"
+      ],
+      "sourcePage": null,
+      "pageHints": [],
+      "guideDomain": "miniguide",
+      "audience": "particulier",
+      "tags": [
+        "tempete",
+        "inondation",
+        "catastrophe-naturelle",
+        "equipements",
+        "prevention"
+      ]
+    }
+  ]
+}

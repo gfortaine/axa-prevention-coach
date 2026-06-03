@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { runPreventionGraph } from "@/lib/coach/agents";
-import { LangGraphUnavailableError } from "@/lib/coach/langgraph";
+import { MistralDocumentLibraryUnavailableError } from "@/lib/coach/mistral";
 import type { Audience, ChatHistoryMessage, ChatRequest } from "@/lib/coach/types";
 
 export const runtime = "nodejs";
+export const maxDuration = 120;
 
 function isAudience(value: unknown): value is Audience {
   return value === "particulier" || value === "flotte" || value === "mixte";
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unexpected chat error.";
-    const status = error instanceof LangGraphUnavailableError ? 503 : 400;
+    const status = error instanceof MistralDocumentLibraryUnavailableError ? 503 : 400;
     return NextResponse.json({ error: message }, { status });
   }
 }
