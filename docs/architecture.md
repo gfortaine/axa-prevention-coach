@@ -140,6 +140,39 @@ Workflow activities that call Mistral RAG should run in a trusted BFF/worker
 runtime. Sandbox activities should only execute public/sanitized code, tests,
 previews, transformations or QA scripts without privileged secrets.
 
+### Gate 0 Workflows decision note
+
+Mistral Workflows remains the preferred durable orchestrator target because the
+public documentation describes a LangGraph-like split between a Mistral-hosted
+control plane and user-hosted workers. That is enough for planning and demo
+architecture, but not enough to approve sensitive production worker code.
+
+Do not add Mistral Workflows worker implementation until these questions are
+answered for the target account and customer context:
+
+1. account entitlement and product maturity: GA, private beta, or Enterprise-only;
+2. exact SDK/API surface: package, worker startup, deployment routing,
+   retries, replay behavior and deployment conflict handling;
+3. control-plane sovereignty: region, DPA, no-training, retention and
+   subprocessors;
+4. payload handling: whether workflow history stores raw payloads, encrypted
+   payloads, metadata only, or references;
+5. trace correlation across Workflows, trusted workers, sandbox commands,
+   Mistral Agent calls and final BFF responses.
+
+Current decision:
+
+- **Approved for architecture and demos:** Mistral Workflows as the preferred
+  orchestrator target, with workers handling only public/sanitized payloads until
+  the checklist is answered.
+- **Not approved for sensitive production:** no sensitive AXA/Deskmate payloads
+  in Workflows history or Sandbox sessions until sovereignty and payload
+  controls are proven.
+- **Fallback preserved:** the product should keep the same orchestration and
+  execution-plane interfaces so self-hosted Temporal, Restate, Azure Durable
+  Functions, Azure Container Apps Jobs, AKS or OpenShift workers can replace
+  Workflows/Sandbox if required.
+
 ## RAG pipeline
 
 The MVP uses Mistral Document Library via Mistral Agents API. Documentary
