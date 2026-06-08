@@ -53,6 +53,7 @@ They do **not** replace Mistral. The architecture split is:
 | Concern | Owner |
 | --- | --- |
 | Reasoning, RAG, planning, eval hooks | Mistral Agents, Document Library, Workflows and Studio |
+| Durable workflow orchestration | Mistral Workflows, if the Enterprise spike validates worker support and sovereignty |
 | Running untrusted code, tests, scripts and previews | Execution Plane Adapter |
 | Public-demo/sanitized execution backend | Vercel Sandbox |
 | Sensitive production execution backend | Future EU/private microVM runner |
@@ -95,6 +96,40 @@ Security and cost controls before any sandbox creation:
 6. restrict egress with firewall/domain allow-lists before production pilots;
 7. call `stop()` explicitly and persist durable outputs outside the sandbox.
 
+### Mistral Workflows on sandbox workers
+
+Sandboxes should not be described as "running the workflow" in the orchestration
+sense. The intended split is:
+
+```text
+Mistral Workflows orchestrator
+  -> dispatches activity
+  -> trusted workflow worker process
+       -> trusted activities call Mistral Agent / Document Library / product DB
+       -> untrusted execution activities call Execution Plane Adapter
+            -> Vercel Sandbox for public/sanitized demos
+            -> future EU/private runner for sensitive production
+```
+
+Mistral Workflows is the LangGraph-like durable control plane if the Enterprise
+spike validates the capability. Vercel Sandbox is an optional worker runtime or
+execution substrate for sanitized activities. It must not receive
+`MISTRAL_API_KEY`, long-lived provider credentials, client documents, or
+sensitive user payloads.
+
+Before cementing this pattern, validate:
+
+1. Mistral Workflows account availability, hybrid worker model and SDK maturity;
+2. deployment names, retries, scaling and worker failure behavior;
+3. control-plane region, DPA, retention, no-training and subprocessors;
+4. payload encryption or data-by-reference support for workflow history;
+5. trace correlation across Workflows, trusted workers, sandbox commands and
+   Mistral calls.
+
+Workflow activities that call Mistral RAG should run in a trusted BFF/worker
+runtime. Sandbox activities should only execute public/sanitized code, tests,
+previews, transformations or QA scripts without privileged secrets.
+
 ## RAG pipeline
 
 The MVP uses Mistral Document Library via Mistral Agents API. Documentary
@@ -121,6 +156,12 @@ File ingestion is separate from retrieval:
 
 Local corpus metadata remains useful only for stable titles, guide domains and
 page links. It is not a fallback retriever.
+
+Current provisioned identifiers are tracked in
+`services/agent/corpus/mistral_documents.json`: the manifest contains the
+Mistral `library_id`, the Mistral `agent_id`, and the uploaded document IDs for
+the road-safety, climate and natural-events guides. The manifest normalizes
+citations; retrieval itself is delegated to the managed Mistral Document Library.
 
 This is close to a Mistral-native app such as `antoine-palazz/use-case-design`,
 but the web contract, citation repair, product metadata and trace identifiers

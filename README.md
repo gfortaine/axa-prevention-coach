@@ -42,6 +42,10 @@ flowchart LR
   backend for agentic code execution, previews and QA workbenches, behind a
   provider-neutral adapter; sensitive production execution still requires an
   EU/private runner.
+- **Workflow split:** Mistral Workflows is the target LangGraph-like
+  orchestrator; Sandboxes can host sanitized worker execution, but trusted
+  workers/BFF routes keep Mistral RAG credentials and sensitive data out of the
+  sandbox.
 - **Voice:** server-side Mistral Voxtral TTS streaming via `/api/tts/stream`.
 - **Design system:** AXA France Canopée `prospect` tokens/components, with
   custom chat surfaces for fidelity to the public assistant behavior.
