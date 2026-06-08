@@ -162,9 +162,8 @@ answered for the target account and customer context:
 
 Current decision:
 
-- **Approved for architecture and demos:** Mistral Workflows as the preferred
-  orchestrator target, with workers handling only public/sanitized payloads until
-  the checklist is answered.
+- **Approved for public/sanitized PoC:** Mistral Workflows as the preferred
+  orchestrator target, with workers handling only public/sanitized payloads.
 - **Not approved for sensitive production:** no sensitive AXA/Deskmate payloads
   in Workflows history or Sandbox sessions until sovereignty and payload
   controls are proven.
@@ -172,6 +171,22 @@ Current decision:
   execution-plane interfaces so self-hosted Temporal, Restate, Azure Durable
   Functions, Azure Container Apps Jobs, AKS or OpenShift workers can replace
   Workflows/Sandbox if required.
+
+Evidence already collected for demo approval:
+
+- `mistralai-workflows==3.6.1` exists on PyPI.
+- The package contains worker, activity, workflow, Temporal payload codec,
+  field offloading and OpenTelemetry tracing modules.
+- SDK inspection shows `run_worker`, deployment-name support, payload
+  offloading/encryption hooks and worker tracing initialization.
+- The existing Mistral API key can reach
+  `GET /v1/workflows/workers/whoami` with HTTP 200, returning scheduler,
+  namespace and TLS metadata.
+
+This evidence is sufficient for a public/sanitized PoC. It is not sufficient for
+sensitive production because region, Enterprise entitlement, retention,
+no-training, subprocessors and workflow-history payload guarantees are still not
+contractually proven.
 
 ## RAG pipeline
 
