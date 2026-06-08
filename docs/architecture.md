@@ -72,6 +72,16 @@ interface AgentExecutionPlane {
 }
 ```
 
+Gate 1 is implemented without a Vercel runtime dependency in
+`apps/web/src/lib/execution`:
+
+- `types.ts` defines `AgentExecutionPlane`, session input/output, command,
+  file, preview and snapshot contracts.
+- `policy.ts` denies unsafe execution requests before any backend can create a
+  sandbox or runner.
+- `noop.ts` provides a non-executing adapter for compile-time integration and
+  safe tests.
+
 ### Vercel Sandbox guardrails
 
 Vercel Sandboxes are approved for public MVPs, synthetic/sanitized data,
